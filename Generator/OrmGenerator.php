@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Sonata project.
- *
- * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Sonata\EasyExtendsBundle\Generator;
 
 use Sonata\EasyExtendsBundle\Bundle\BundleMetadata;
@@ -21,7 +12,7 @@ class OrmGenerator implements GeneratorInterface
 
     public function __construct()
     {
-        $this->entityTemplate           = file_get_contents(__DIR__.'/../Resources/skeleton/orm/entity.mustache');
+        $this->entityTemplate = file_get_contents(__DIR__.'/../Resources/skeleton/orm/entity.mustache');
         $this->entityRepositoryTemplate = file_get_contents(__DIR__.'/../Resources/skeleton/orm/repository.mustache');
     }
 
@@ -49,14 +40,23 @@ class OrmGenerator implements GeneratorInterface
             // copy mapping definition
             $fileName = substr($file->getFileName(), 0, strrpos($file->getFileName(), '.'));
 
-            $dest_file  = sprintf('%s/%s', $bundleMetadata->getOrmMetadata()->getExtendedMappingEntityDirectory(), $fileName);
-            $src_file   = sprintf('%s/%s', $bundleMetadata->getOrmMetadata()->getMappingEntityDirectory(), $file->getFileName());
+            $destinationFile = sprintf(
+                '%s/%s',
+                $bundleMetadata->getOrmMetadata()->getExtendedMappingEntityDirectory(),
+                $fileName
+            );
 
-            if (is_file($dest_file)) {
+            $srcFile = sprintf(
+                '%s/%s',
+                $bundleMetadata->getOrmMetadata()->getMappingEntityDirectory(),
+                $file->getFileName()
+            );
+
+            if (is_file($destinationFile)) {
                 $output->writeln(sprintf('   ~ <info>%s</info>', $fileName));
             } else {
                 $output->writeln(sprintf('   + <info>%s</info>', $fileName));
-                copy($src_file, $dest_file);
+                copy($srcFile, $destinationFile);
             }
         }
     }
@@ -74,21 +74,26 @@ class OrmGenerator implements GeneratorInterface
         foreach ($names as $name) {
             $extendedName = $name;
 
-            $dest_file  = sprintf('%s/%s.php', $bundleMetadata->getOrmMetadata()->getExtendedEntityDirectory(), $name);
-            $src_file = sprintf('%s/%s.php', $bundleMetadata->getOrmMetadata()->getEntityDirectory(), $extendedName);
+            $destinationFile = sprintf(
+                '%s/%s.php',
+                $bundleMetadata->getOrmMetadata()->getExtendedEntityDirectory(),
+                $name
+            );
 
-            if (!is_file($src_file)) {
+            $srcFile = sprintf('%s/%s.php', $bundleMetadata->getOrmMetadata()->getEntityDirectory(), $extendedName);
+
+            if (!is_file($srcFile)) {
                 $extendedName = 'Base'.$name;
-                $src_file = sprintf('%s/%s.php', $bundleMetadata->getOrmMetadata()->getEntityDirectory(), $extendedName);
+                $srcFile = sprintf('%s/%s.php', $bundleMetadata->getOrmMetadata()->getEntityDirectory(), $extendedName);
 
-                if (!is_file($src_file)) {
+                if (!is_file($srcFile)) {
                     $output->writeln(sprintf('   ! <info>%s</info>', $extendedName));
 
                     continue;
                 }
             }
 
-            if (is_file($dest_file)) {
+            if (is_file($destinationFile)) {
                 $output->writeln(sprintf('   ~ <info>%s</info>', $name));
             } else {
                 $output->writeln(sprintf('   + <info>%s</info>', $name));
@@ -101,7 +106,7 @@ class OrmGenerator implements GeneratorInterface
                     'namespace'             => $bundleMetadata->getNamespace(),
                 ));
 
-                file_put_contents($dest_file, $string);
+                file_put_contents($destinationFile, $string);
             }
         }
     }
@@ -117,15 +122,20 @@ class OrmGenerator implements GeneratorInterface
         $names = $bundleMetadata->getOrmMetadata()->getEntityNames();
 
         foreach ($names as $name) {
-            $dest_file  = sprintf('%s/%sRepository.php', $bundleMetadata->getOrmMetadata()->getExtendedEntityDirectory(), $name);
-            $src_file   = sprintf('%s/Base%sRepository.php', $bundleMetadata->getOrmMetadata()->getEntityDirectory(), $name);
+            $destinationDir = $bundleMetadata->getOrmMetadata()->getExtendedRepositoryDirectory();
+            $destinationFile = sprintf('%s/%sRepository.php', $destinationDir, $name);
+            $srcFile = sprintf(
+                '%s/Base%sRepository.php',
+                $bundleMetadata->getOrmMetadata()->getRepositoryDirectory(),
+                $name
+            );
 
-            if (!is_file($src_file)) {
+            if (!is_file($srcFile)) {
                 $output->writeln(sprintf('   ! <info>%sRepository</info>', $name));
                 continue;
             }
 
-            if (is_file($dest_file)) {
+            if (is_file($destinationFile)) {
                 $output->writeln(sprintf('   ~ <info>%sRepository</info>', $name));
             } else {
                 $output->writeln(sprintf('   + <info>%sRepository</info>', $name));
@@ -136,7 +146,11 @@ class OrmGenerator implements GeneratorInterface
                     'namespace'             => $bundleMetadata->getNamespace(),
                 ));
 
-                file_put_contents($dest_file, $string);
+                if (!is_dir($destinationDir)) {
+                    mkdir($destinationDir, 0775, true);
+                }
+
+                file_put_contents($destinationFile, $string);
             }
         }
     }

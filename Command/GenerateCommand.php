@@ -1,14 +1,5 @@
 <?php
 
-/*
- * This file is part of the Sonata project.
- *
- * (c) Thomas Rabaix <thomas.rabaix@sonata-project.org>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Sonata\EasyExtendsBundle\Command;
 
 use Sonata\EasyExtendsBundle\Bundle\BundleMetadata;
@@ -18,13 +9,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Generate Application entities from bundle entities.
- *
- * @author Thomas Rabaix <thomas.rabaix@sonata-project.org>
- */
 class GenerateCommand extends ContainerAwareCommand
 {
+    const ENTITY_DIRECTORY = 'Entity';
+
     /**
      * {@inheritdoc}
      */
@@ -123,6 +111,13 @@ EOT
             }
 
             $processed = true;
+
+            $configuration['entity_directory'] = $this->getEntityDirectory();
+            $configuration['repository_directory'] = $this->getRepositoryDirectory();
+
+            $configuration['extended_entity_directory'] = $this->getExtendedEntityDirectory();
+            $configuration['extended_repository_directory'] = $this->getExtendedRepositoryDirectory();
+
             $bundleMetadata = new BundleMetadata($bundle, $configuration);
 
             // generate the bundle file
@@ -162,5 +157,52 @@ EOT
         }
 
         return $processed;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    protected function getEntityDirectory()
+    {
+        if ($this->getContainer()->hasParameter('sonata.easyExtend.entity.directory')) {
+            return $this->getContainer()->getParameter('sonata.easyExtend.entity.directory');
+        }
+        return static::ENTITY_DIRECTORY;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    protected function getRepositoryDirectory()
+    {
+        if ($this->getContainer()->hasParameter('sonata.easyExtend.repository.directory')) {
+            return $this->getContainer()->getParameter('sonata.easyExtend.repository.directory');
+        }
+
+        return static::ENTITY_DIRECTORY;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    protected function getExtendedEntityDirectory()
+    {
+        if ($this->getContainer()->hasParameter('sonata.easyExtend.extended_entity.directory')) {
+            return $this->getContainer()->getParameter('sonata.easyExtend.extended_entity.directory');
+        }
+
+        return $this->getEntityDirectory();
+    }
+
+    /**
+     * @return mixed|string
+     */
+    protected function getExtendedRepositoryDirectory()
+    {
+        if ($this->getContainer()->hasParameter('sonata.easyExtend.extended_repository.directory')) {
+            return $this->getContainer()->getParameter('sonata.easyExtend.extended_repository.directory');
+        }
+
+        return $this->getRepositoryDirectory();
     }
 }
