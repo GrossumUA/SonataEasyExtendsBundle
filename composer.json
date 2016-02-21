@@ -1,7 +1,7 @@
 {
-    "name": "sonata-project/easy-extends-bundle",
+    "name": "grossum/easy-extends-bundle",
     "type": "symfony-bundle",
-    "description": "Symfony SonataEasyExtendsBundle",
+    "description": "Symfony SonataEasyExtendsBundle with Grossum modifications",
     "keywords": ["sonata", "easy extends"],
     "homepage": "https://sonata-project.org/bundles/easy-extends",
     "license": "MIT",
