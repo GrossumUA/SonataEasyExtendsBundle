@@ -277,6 +277,22 @@ class BundleMetadata
     /**
      * @return string
      */
+    public function getExtendedRepositoryNamespace()
+    {
+        return str_replace('/', '\\', $this->getExtendedRepositoryDirectory());
+    }
+
+    /**
+     * @return string
+     */
+    public function getRepositoryNamespace()
+    {
+        return str_replace('/', '\\', $this->getRepositoryDirectory());
+    }
+
+    /**
+     * @return string
+     */
     public function getEntityDirectory()
     {
         return $this->entityDirectory;

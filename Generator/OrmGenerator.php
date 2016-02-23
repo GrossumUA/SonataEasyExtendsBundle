@@ -140,10 +140,15 @@ class OrmGenerator implements GeneratorInterface
             } else {
                 $output->writeln(sprintf('   + <info>%sRepository</info>', $name));
 
+                $extendedNamespace = $bundleMetadata->getExtendedNamespace() . '\\' .
+                    $bundleMetadata->getExtendedRepositoryNamespace();
+
+                $namespace = $bundleMetadata->getNamespace() . '\\' . $bundleMetadata->getRepositoryNamespace();
+
                 $string = Mustache::replace($this->getEntityRepositoryTemplate(), array(
-                    'extended_namespace'    => $bundleMetadata->getExtendedNamespace(),
+                    'extended_namespace'    => $extendedNamespace,
                     'name'                  => $name,
-                    'namespace'             => $bundleMetadata->getNamespace(),
+                    'namespace'             => $namespace,
                 ));
 
                 if (!is_dir($destinationDir)) {
