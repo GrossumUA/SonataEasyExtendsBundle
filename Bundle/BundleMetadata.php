@@ -15,21 +15,65 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
 class BundleMetadata
 {
+    /**
+     * @var BundleInterface
+     */
     protected $bundle;
 
+    /**
+     * @var bool
+     */
     protected $vendor = false;
 
+    /**
+     * @var bool
+     */
     protected $valid = false;
 
+    /**
+     * @var string
+     */
     protected $namespace;
 
+    /**
+     * @var string
+     */
     protected $name;
 
+    /**
+     * @var bool
+     */
     protected $extendedDirectory = false;
 
+    /**
+     * @var bool
+     */
     protected $extendedNamespace = false;
 
+    /**
+     * @var array
+     */
     protected $configuration = array();
+
+    /**
+     * @var string
+     */
+    protected $extendedRepositoryDirectory;
+
+    /**
+     * @var string
+     */
+    protected $extendedEntityDirectory;
+
+    /**
+     * @var string
+     */
+    protected $entityDirectory;
+
+    /**
+     * @var string
+     */
+    protected $repositoryDirectory;
 
     /**
      * @var OrmMetadata
@@ -90,15 +134,31 @@ class BundleMetadata
         $this->name = $information[count($information) - 1];
         $this->vendor = $information[0];
         $this->namespace =  sprintf('%s\%s', $this->vendor, $information[1]);
-        $this->extendedDirectory = sprintf('%s/%s/%s', $this->configuration['application_dir'], $this->vendor, $information[1]);
+
+        $this->extendedDirectory = sprintf(
+            '%s/%s/%s',
+            $this->configuration['application_dir'],
+            $this->vendor,
+            $information[1]
+        );
         $this->extendedNamespace = sprintf('Application\\%s\\%s', $this->vendor, $information[1]);
+
         $this->valid = true;
+
+        $this->entityDirectory = $this->configuration['entity_directory'];
+        $this->repositoryDirectory = $this->configuration['repository_directory'];
+
+        $this->extendedEntityDirectory = $this->configuration['extended_entity_directory'];
+        $this->extendedRepositoryDirectory = $this->configuration['extended_repository_directory'];
 
         $this->ormMetadata = new OrmMetadata($this);
         $this->odmMetadata = new OdmMetadata($this);
         $this->phpcrMetadata = new PhpcrMetadata($this);
     }
 
+    /**
+     * @return bool
+     */
     public function isExtendable()
     {
         // does not extends Application bundle ...
@@ -196,5 +256,53 @@ class BundleMetadata
     public function getPhpcrMetadata()
     {
         return $this->phpcrMetadata;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtendedEntityDirectory()
+    {
+        return $this->extendedEntityDirectory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtendedRepositoryDirectory()
+    {
+        return $this->extendedRepositoryDirectory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtendedRepositoryNamespace()
+    {
+        return str_replace('/', '\\', $this->getExtendedRepositoryDirectory());
+    }
+
+    /**
+     * @return string
+     */
+    public function getRepositoryNamespace()
+    {
+        return str_replace('/', '\\', $this->getRepositoryDirectory());
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityDirectory()
+    {
+        return $this->entityDirectory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRepositoryDirectory()
+    {
+        return $this->repositoryDirectory;
     }
 }
